@@ -23,7 +23,10 @@ The goal is to:
 - Reveal how users engage across different transaction types
 
 **👤 Who is this project for?**
-
+- **Business Analysts & Data Analysts**: understand user behavior, product performance, and transaction dynamics in an e-wallet ecosystem.
+- **Fintech Product Manager**: need data insights about customer engagement, payment/transfer patterns, refund contributors, and product/team performance.
+- **Engineering & Operations Teams**: rely on structured insights to improve transaction workflows, detect anomalies, and enhance customer experience.
+  
 **🎯Project Outcome:**
 
 ---
@@ -226,108 +229,202 @@ df_transactions.describe()
 | Outlier receiver_id = -63   | Removed                      |
 | Date column formats         | Standardized                 |
 
-Dataset is now fully clean, validated, and ready for EDA + Analysis.
+Dataset is now fully clean, validated, and ready for Analysis.
 </details>
 
 ---
 
 ## 🧠 4. Analysis & Insights
 
-### 🔍 **A. Product Performance Insights**
+### 🔍 **A. Top 3 Products by Total Volume**
 [In]:
-
 ```python
-# Calculate volume by product_id
-volume_by_product = payment_product.groupby('product_id')['volume'].agg('sum').reset_index()
-
-# Sort volume in descending order
-volume_by_product.sort_values(by='volume', ascending=False)
-
-# Filter the top 3 product_ids with the highest volume
-top_3_productid = volume_by_product.head(3)
-
-# Print the results
-print("Top 3 product_ids with the highest volume:")
-print(top_3_productid)
+# Top 3 product_ids with highest total volume
+product_with_volume = df_payment_enriched.groupby("product_id")["volume"].sum()
+product_with_volume.sort_values(ascending=False).head(3)
 ```
-
 [Out]:
 
-![Image](https://github.com/user-attachments/assets/bc5a3949-cd1d-4abb-8bfd-5a71278da524)
+<img width="319" height="252" alt="image" src="https://github.com/user-attachments/assets/ec1af39a-0b42-4e2a-83b5-e875819ec8b9" />
 
-**Insight**
-- **Product ID 15** and **Product ID 12** generate the highest volume, making them top drivers of platform activity.  
-- **Product ID 3** shows significantly lower volume → possible low demand or operational issues.  
-- High-volume products should be prioritized for **marketing**, **inventory**, and **user targeting** strategies.
+**Insight:**  
+- A small number of products generate disproportionately high volume.  
+- Product **429** leads by a large margin → indicating high user demand or bundle usage.  
+- Product concentration risk exists — business should diversify revenue sources.
+  
+---
+
+### 🔍 B. Validate Product Ownership Rules
+[In]:
+```python
+# Check if any product is owned by more than 1 team
+product_with_team = df_product.groupby('product_id')['team_own'].nunique()
+product_with_team.sort_values(ascending=False).head()
+```
+[Out]:
+
+<img width="272" height="353" alt="image" src="https://github.com/user-attachments/assets/937c74f8-fac6-41a7-ad2f-c87bfd09149e" />
 
 
-### 🔍 **B. Team Ownership & Operational Integrity**
-- Every product is managed by **one unique team**, indicating clear ownership and no conflicts.  
-- No overlapping responsibilities → efficient structure and reduced risk of duplicated work.  
-- Teams show stable management discipline, supporting smooth operational processes.
+- Each product should belong to exactly 1 team.
+- Validation shows all product_ids are owned by a single team → clean governance and no ownership conflict.
 
 ---
 
-### 🔍 **C. Team Performance (Q2 2023 Onwards)**
-- **Team APS** records the **lowest performance** in total transaction volume since Q2.2023.  
-- Its weakest category, **PXXXXXB**, contributes **0 volume**, indicating either inactive product lines or operational blockers.  
-- APS may need **resource support**, **workflow review**, or **product strategy realignment**.
+### 🔍 C. Lowest-Performing Team Since Q2 2023
+[In]:
+```python
+# Lowest performing team since Q2 2023
+filter_data = df_payment_enriched[df_payment_enriched['report_month'] >= pd.Timestamp('2023-04-01')]
+team_with_volume = filter_data.groupby('team_own')['volume'].sum()
+team_with_volume.sort_values(ascending=True).head(1)
+```
+[Out]:
+
+<img width="274" height="159" alt="image" src="https://github.com/user-attachments/assets/382d8275-7c21-42bd-8cd3-12bc7d61b3cc" />
+
+**Insight:** 
+- Filtering from 2023-04-01 onward, Team APS shows the lowest total volume.
+- This indicates possible operational issues, product decline, or low customer engagement since Q2.
+- Requires performance review and product strategy adjustment.
 
 ---
 
-### 🔍 **D. Refund Behavior & Source Contributions**
-- Refunds are heavily driven by a single source: **Source ID 38**, contributing **~59%** of all refund volume.  
-- This source likely indicates a **system issue**, **merchant problem**, or **fraud risk**.  
-- Reducing refund volume from this source can substantially improve platform stability.
+### 🔍 D. Refund Transactions — Top Source Contributor
+
+# Find which source_id contributes the most to refunds
+[In]:
+```python
+filter_payment_group = df_payment[df_payment['payment_group'] == 'refund']
+source_with_volume = filter_payment_group.groupby('source_id')['volume'].sum()
+source_with_volume.sort_values(ascending=False).head(1)
+```
+[Out]:
+
+<img width="343" height="158" alt="image" src="https://github.com/user-attachments/assets/19bddd0f-1f55-45ca-adad-c9a79c6f58c6" />
+
+**Insight:** 
+- Refunds are highly concentrated in Source ID 38, contributing the largest refund volume.
+  *This may signal issues with:*
+- A specific merchant integration
+- Product bugs
+- Payment partner API
+- Requires immediate root-cause analysis.
 
 ---
 
-### 🔍 **E. Transaction Type Distribution**
-- **Payment** and **Top Up** transactions dominate the platform with the highest volume.  
-- **Split Bill** has the lowest engagement → niche use case but potential for growth with promotion.  
-- Understanding each type’s sender/receiver counts helps identify user engagement patterns across transaction flows.
+### 🔍 E. Transaction Type Classification
+[In]:
+```python
+#Define type of transactions (‘transaction_type’) for each row
+def trans_type(trans):
+  if trans.transType == 2 and trans.merchant_id == 1205:
+    return "Bank Transfer Transaction"
+  if trans.transType == 2 and trans.merchant_id == 2260:
+    return "Withdraw Money Transaction"
+  if trans.transType == 2 and trans.merchant_id == 2270:
+    return "Top Up Money Transaction"
+  if trans.transType == 2 and trans.merchant_id != 1205 and trans.merchant_id != 2260 and trans.merchant_id != 2270:
+    return "Payment Transaction"
+  if trans.transType == 8 and trans.merchant_id == 2250:
+    return "Transfer Money Transaction"
+  if trans.transType == 8 and trans.merchant_id !=2250:
+    return "Slit Bill Transaction"
+  else:
+    return "Invalid Transaction"
+    
+df_transactions['trans_type'] = df_transactions.apply(trans_type, axis=1)
+df_transactions.head()
+```
+[Out]:
 
+<img width="1736" height="296" alt="image" src="https://github.com/user-attachments/assets/7439c744-9a11-46fd-b026-ffbc6c517297" />
+
+**Insight:** 
+- Transaction rules were applied to classify: Bank Transfer, Payment, Withdraw, Top Up, Transfer, Split Bill.
+- Classification is essential for understanding channel behavior and detecting invalid transactions.
+  
 ---
 
-### 🔍 **F. User Interaction Across Transaction Types**
-- High sender/receiver counts in **Payment** and **Top Up** indicate strong user reliance on core wallet functions.  
-- **Withdraw** and **Transfer** show moderate activity, suggesting selective usage scenarios.  
-- Engagement indicators highlight where to invest UX improvements and marketing.
+### 🔍 🔍 F. Transaction Metrics by Type
+[In]:
+```python
+# Volume, count, sender, receiver metrics by transaction type (excluding invalid)
+df_transactions = df_transactions[df_transactions['trans_type'] != 'Invalid Transaction']
+df_transactions.groupby('trans_type').agg({
+    'transaction_id':'count',
+    'volume':'sum',
+    'sender_id':'count',
+    'receiver_id':'count'
+})
+```
+[Out]:
+
+<img width="991" height="386" alt="image" src="https://github.com/user-attachments/assets/1a4a6bdd-ab4c-4514-bfe8-1b3289592375" />
+
+**Insight:** 
+- Payment and Top Up transactions dominate both in count and volume.
+- Split Bill has the smallest footprint → potential area for targeted growth.
+- High volumes in Transfer indicate strong user peer-to-peer engagement.
 
 ---
 
 ## ⭐ 5. Key Findings Summary
 
-- Weekend/evening periods drive majority user activity.  
-- In-app and QR payments outperform web transactions.  
-- Top merchants and top users generate most revenue.  
-- Failure and refund patterns are **not random** and cluster in specific areas.  
-- High-top-up users offer strong monetization potential.  
-- There is significant opportunity to improve **conversion**, **retention**, and **operational efficiency**.
+### 1. Top 3 Best-Performing Products (by Volume)
+- Product 429: 14.66B volume
+- Product 372: 13.71B volume
+- Product 431: 7.82B volume
+➡️ These products drive the majority of platform income.
+
+### 2. Product Ownership Check
+- All products are owned by exactly 1 team.
+➡️ No organizational conflict in product ownership.
+
+### 3. Lowest-Performing Team Since Q2 2023
+- Team APS has the lowest total volume (~27.29B).
+- Category PXXXXXB contributes 0 volume to this team.
+➡️ Indicates severe underperformance and unused product/category.
+
+### 4. Refund Transaction Contributors
+- For all refund transactions, source_id = 38 contributes the highest refund volume (36.5B).
+➡️ This source should be investigated — potential system, merchant, or risk issue.
+
+### 5. Transaction Breakdown by Type
+| Transaction Type | # Transactions | Total Volume |
+| ---------------- | -------------- | ------------ |
+| Payment          | 260,332        | 343.85B      |
+| Transfer Money   | 341,173        | 370.33B      |
+| Top Up           | 290,498        | 108.60B      |
+| Withdraw         | 33,725         | 23.41B       |
+| Bank Transfer    | 14,004         | 100.61B      |
+| Split Bill       | 1,376          | 4.9M         |
 
 ---
 
 ## 🧭 6. Recommendations
 
-### **1. Reduce Transaction Failures**
-- Optimize bank APIs and authentication flows.  
-- Promote wallet-balance payments (highest success rate).
+### 1. Product Strategy
+- Allocate more marketing/support to best-selling products (429, 372).
+- Investigate poor adoption of Product 431 despite high volume trend stability.
 
-### **2. Improve Merchant Quality**
-- Work with high-refund merchants to reduce errors/order issues.  
-- Boost promotions for top-performing merchants.
+### 2. Team APS Optimization
+- APS shows the lowest performance and a category that contributes zero volume.
+- Conduct a deep dive: missing product launch? technical issue? wrong ownership?
+- Reevaluate team KPIs and resource allocation.
 
-### **3. Enhance Payment Channels**
-- Improve **web checkout** to reduce drop-offs.  
-- Expand QR code adoption due to strong usage growth.
+### 3. Refund Management
+- Source_id 38 is responsible for 59%+ of refund volume.
+- Investigate causes: merchant error, system bugs, user disputes, fraud indicators.
+- Set automated alerting for abnormal refund spikes.
 
-### **4. Increase User Engagement**
-- Introduce reward programs for active users.  
-- Target high top-up users with personalized offers.
+### 4. Transaction Experience Improvements
+- Improve UX for Transfer and Payment transactions (largest volumes).
+- Enhance onboarding for Split Bill feature — currently underused.
 
-### **5. Strengthen Fraud & Anomaly Detection**
-- Monitor irregular refund/transaction patterns.  
-- Auto-flag merchants with unusual failure spikes.
+### 5. Data Quality & Monitoring
+- Set alerts for invalid transaction types or incorrect merchant_id mapping.
+- Build dashboards to monitor team volume, category volume, refund sources weekly.
 
 ---
 
