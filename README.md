@@ -1,4 +1,4 @@
-# 💳 User Behavior, Transaction Patterns & Refund Insights | E-Wallet Analytics | Python
+# 💳 Transaction Analytics & Operational Insights | FinTech | Python
 <img width="1576" height="854" alt="image" src="https://github.com/user-attachments/assets/b0ffee51-2fba-4cd0-95f7-426ab78b5481" />
 
 **Author:** Huong Le  
@@ -404,27 +404,38 @@ df_transactions.groupby('trans_type').agg({
 
 ## 🧭 6. Recommendations
 
-### 1. Product Strategy
-- Allocate more marketing/support to best-selling products (429, 372).
-- Investigate poor adoption of Product 431 despite high volume trend stability.
+Based on the analysis of user behavior, product performance, team ownership, and transaction patterns, the following recommendations are proposed:
 
-### 2. Team APS Optimization
-- APS shows the lowest performance and a category that contributes zero volume.
-- Conduct a deep dive: missing product launch? technical issue? wrong ownership?
-- Reevaluate team KPIs and resource allocation.
+### **1. Product Performance Optimization**
+- **Prioritize high-volume products** (e.g., Product IDs 429, 372, 431) by allocating more marketing, promotional bundles, and operational support.
+- **Investigate low-volume products** to identify pricing issues, lack of visibility, or placement problems.
+- **Enhance product lifecycle management** by monitoring product trends monthly to detect early performance drops.
 
-### 3. Refund Management
-- Source_id 38 is responsible for 59%+ of refund volume.
-- Investigate causes: merchant error, system bugs, user disputes, fraud indicators.
-- Set automated alerting for abnormal refund spikes.
+### **2. Improve Team Operational Efficiency**
+- **Team APS shows the lowest performance in Q2 2023** → conduct operational review on workload, staffing, or process bottlenecks.
+- **Investigate categories with zero contribution** (e.g., PXXXXXB), ensuring no missing configurations or inactive product listings.
+- Establish **performance KPIs per team** such as volume contribution, product coverage, and refund interactions.
 
-### 4. Transaction Experience Improvements
-- Improve UX for Transfer and Payment transactions (largest volumes).
-- Enhance onboarding for Split Bill feature — currently underused.
+### **3. Strengthen Refund & Risk Controls**
+- **Source ID 38 contributes ~60% of refund volume** → requires urgent root-cause analysis:
+  - Check merchant/API integration issues  
+  - Validate fraud patterns  
+  - Review authorization, compliance, and operational logs  
+- Implement **automated monitoring** to flag abnormal spikes in refund transactions at real-time.
 
-### 5. Data Quality & Monitoring
-- Set alerts for invalid transaction types or incorrect merchant_id mapping.
-- Build dashboards to monitor team volume, category volume, refund sources weekly.
+### **4. Enhance Transaction Journey & User Experience**
+- **Payment and Top-Up transactions have the highest engagement** → prioritize UX improvements, reduce steps, and improve success rate.
+- **Split Bill transactions show low volume** → consider:
+  - better visibility in app  
+  - incentives for social or group payments  
+  - simplified UI/UX  
+- Investigate invalid transactions and ensure **validation rules** prevent incomplete or malformed transaction requests.
+
+### **5. Strengthen Sender & Receiver Ecosystem**
+- High-volume sender and receiver IDs show concentration → evaluate if:
+  - certain merchants or corporate partners dominate usage  
+  - risk of dependency exists  
+- Expand adoption across new user segments to diversify usage and reduce systemic risk.
 
 ---
 
