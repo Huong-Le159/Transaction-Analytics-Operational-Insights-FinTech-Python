@@ -95,8 +95,8 @@ This project utilizes **three** datasets:
 - Removed exact duplicate rows and dropped records missing **critical keys** (e.g., `product_id`, `volume`, `transType`).  
 - Converted `report_month` to datetime for time-based filtering.  
 - Merged `payment` and `product` tables into a single `payment_product` dataset using a **left join** on `product_id`.
-<details>
-  <summary><strong>Import Packages & Mount Google Drive</strong></summary>
+  
+<details> <summary><strong>Import Packages & Mount Google Drive</strong></summary>
 
 ```python
 import pandas as pd
@@ -110,8 +110,7 @@ path = '/content/drive/MyDrive/American Preparation/DAC K33/Python_Project 2/'
 - Loads core Python libraries
 - Mounts Google Drive to access raw CSV files
 </details>
-<details>
-  <summary><strong>Load Raw Data Files</strong></summary>
+<details> <summary><strong>Load Raw Data Files</strong></summary>
   
 ```python  
 df_payment = pd.read_csv(path + 'payment_report.csv')
@@ -121,71 +120,115 @@ df_transactions = pd.read_csv(path + 'transactions.csv')
 - Keeps each dataset separate for flexible cleaning & transformation
 - Ensures schema consistency before merging
 </details>
-#### Step 1. Import library
+<details> <summary><strong>Inspect Data Structure</strong></summary>
+  
+```python  
+df_payment.head()
+df_product.head()
+df_transactions.head()
+```
+- Confirms column names & structure
+- Identifies unexpected nulls or formatting issues early
+</details>
+<details> <summary><strong>Merge Payment + Product Dataset</strong></summary>
+
+Purpose: Enrich payment data with product attributes using product_id.
+```python  
+df_payment_enriched = pd.merge(
+    df_payment,
+    df_product,
+    on='product_id'
+)
+
+df_payment_enriched.head()
+```
+</details>
+<details> <summary><strong>Inspect Data Structure</strong></summary>
+  
+```python  
+df_payment_enriched.info()
+df_transactions.info()
+```
+- Checked schema, datatypes, and memory usage
+- Identified missing values and inconsistent types
+</details>
+<details> <summary><strong>Check Missing Data</strong></summary>
+
+df_transactions — Missing Overview
+- sender_id: 49,059 missing (3.7%) → Ignore
+- receiver_id: 164,795 missing (12.4%) → Ignore
+- extra_info: 1.3M missing (99.5%) → Ignore
+```python 
+df_transactions.head()
+```
+</details>
+<details> <summary><strong>Fix Incorrect Data Types</strong></summary>
+  
+*Remove unused column*
+```python
+if 'date' in df_transactions.columns:
+    df_transactions = df_transactions.drop(columns=['date'])
+```
+*Convert timestamp & ID fields*
+```python
+# Convert timestamp
+df_transactions['timeStamp'] = pd.to_datetime(
+    df_transactions['timeStamp'], 
+    unit='ms', 
+    errors='coerce'
+)
+
+# Convert sender/receiver IDs
+df_transactions['sender_id'] = df_transactions['sender_id'].astype('int64')
+df_transactions['receiver_id'] = df_transactions['receiver_id'].astype('int64')
+
+# Convert report_month
+df_payment_enriched['report_month'] = pd.to_datetime(df_payment_enriched['report_month'])
+```
+</details>
+<details> <summary><strong>Re-Validate Data Types</strong></summary>
+  
+```python
+df_transactions.info()
+df_payment_enriched.info()
+```
+</details>
+<details> <summary><strong>Handle Duplicates</strong></summary>
 
 ```python
-import numpy as np
-import matlotblib as plt
-import seaborn as sns
-import pandas as pd
+df_transactions = df_transactions[~df_transactions.duplicated()]
+df_transactions.duplicated().sum()   # Output: 0
 ```
+- Removed 25 duplicate rows
+</details>
+<details> <summary><strong>Detect Outliers & Invalid Values</strong></summary>
 
-#### Step 2. Load dataset 
-
-```python
-#Load data to Colab
-from google.colab import drive
-drive.mount('/content/drive')
-
-# Import file csv to Colab
-import pandas as pd
-payment = pd.read_csv('/content/drive/MyDrive/Python_Project2/payment_report.csv', encoding='utf-8')
-product = pd.read_csv('/content/drive/MyDrive/Python_Project2/product.csv', encoding='utf-8')
-transaction = pd.read_csv('/content/drive/MyDrive/Python_Project2/transactions.csv', encoding='utf-8')
+*Summary Statistics*
+```python  
+df_payment_enriched.describe()
+df_transactions.describe()
 ```
-
-#### Step 3. Display the first 5 rows of the product table
-
-```python
-payment.head()
-product.head()
-transaction.head()
+*Invalid Value Found*
+- receiver_id = -63 → invalid → Action: Remove
+```python  
+df_transactions = df_transactions[df_transactions['receiver_id'] != -63]
+df_transactions.describe()
 ```
-📝 **Checked for Missing Values**
+</details>
+<details> <summary><strong>Cleaning Summary</strong></summary>
 
-- Missing values were detected in the **transaction** table:
-  - **sender_id**: 49,059 missing values
-  - **receiver_id**: 164,795 missing values
-  - **extra_info**: 1,317,907 missing values
+| Issue Found                 | Action Taken                 |
+| --------------------------- | ---------------------------- |
+| Missing sender/receiver IDs | Ignored                      |
+| `extra_info` 99% null       | Ignored                      |
+| Wrong data types            | Fixed (datetime, ID casting) |
+| Duplicate rows              | Removed                      |
+| Outlier receiver_id = -63   | Removed                      |
+| Date column formats         | Standardized                 |
 
-No missing values were found in the **payment** or **product** tables.
+Dataset is now fully clean, validated, and ready for EDA + Analysis.
+</details>
 
-📝 **Checked for Duplicates**
-
-- **Payment table**: No duplicates were found.
-- **Product table**: No duplicates were found.
-- **Transaction table**: 28 duplicate rows were identified.
-
-### 2️⃣ Exploratory Data Analysis (EDA)
-
-📝 **Handle Missing Values**
-
-```python
-# The sender_id and receiver_id columns in the Transaction table are not important, so missing values are replaced with 'Unknow' for consistency
-transaction['sender_id'] = transaction['sender_id'].fillna(value='Unknow')
-transaction['receiver_id'] = transaction['receiver_id'].fillna(value='Unknow')
-
-# Drop the 'extra_info' column from the Transaction table
-transaction.drop('extra_info', axis=1, inplace=True)
-```
-
-📝 **Handle Duplicate**
-
-```python
-
-#Drop duplicate
-transaction.drop_duplicates(subset=None, keep='first')
-```
 ---
 
 ## 🧠 4. Analysis & Insights
