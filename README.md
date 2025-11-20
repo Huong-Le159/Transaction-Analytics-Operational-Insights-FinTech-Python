@@ -1,5 +1,5 @@
 # 💳 Transaction Analytics & Operational Insights | FinTech | Python
-<img width="1576" height="854" alt="image" src="https://github.com/user-attachments/assets/b0ffee51-2fba-4cd0-95f7-426ab78b5481" />
+<img width="1658" height="922" alt="image" src="https://github.com/user-attachments/assets/3e31002c-e1d0-4b65-b781-c437190f4d9f" />
 
 **Author:** Huong Le  
 **Domain:** Digital Payments & E-commerce Analytics  
@@ -441,16 +441,11 @@ Based on the analysis of user behavior, product performance, team ownership, and
 
 ## 🛠️ 7. Tools & Skills Demonstrated
 
-- **Python:** pandas, numpy, seaborn, matplotlib  
-- **EDA:** data cleaning, anomaly detection, feature exploration  
-- **Customer segmentation**  
-- **Merchant performance analytics**  
-- **Refund & failure pattern detection**  
-- **Trend analysis & storytelling**  
-- **Business recommendations**
-
----
-> 📌 *This project highlights end-to-end analytics skills: from raw data → insights → business recommendations.*
-
-
-
+- **Python:** pandas, numpy, seaborn, matplotlib
+- **Data Cleaning:** missing value handling, data type correction, fixing anomalies, removing duplicates
+- **Exploratory Data Analysis (EDA):** distribution analysis, aggregation, pattern detection
+- **Product Performance Analysis:** top sellers, category contribution, team ownership validation
+- **User & Transaction Behavior Analysis:** sender/receiver engagement, transaction-type classification
+- **Payment & Refund Analytics:** refund contributor detection, failure pattern identification
+- **📈 Trend & Volume Analysis:** time-based filtering (Q2), performance comparison
+- **🧠 Business Insights & Recommendations:** operational improvements, product focus, risk detection
