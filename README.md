@@ -7,33 +7,28 @@
 
 ---
 
-## 📌 1. Background & Overview
+## 📌 Background & Overview
 
-Digital wallet platforms process large volumes of customer transactions daily. Understanding **user behavior**, **payment success**, and **revenue patterns** is essential for improving customer experience and financial performance.
+**Objective:**
 
-This project analyzes an **E-Wallet transaction dataset** using Python to uncover:
+**📖 What is this project about?**
 
-- Customer and merchant activity patterns  
-- Payment success vs failure behavior  
-- Refund trends and risk areas  
-- High-value users & high-performing merchants  
-- Opportunities to improve conversion and revenue  
+This project aims to analyze **user behavior**, **transaction journeys**, and **product-team performance** within an **E-wallet platform**.
 
-The goal is to demonstrate end-to-end **data analytics thinking**, turning raw data into insights and business actions.
+The goal is to:
+- Identify top-performing and underperforming products
+- Understand team operational performance
+- Detect refund anomalies and high-risk contributors
+- Categorize complex transaction patterns
+- Reveal how users engage across different transaction types
 
----
+**👤 Who is this project for?**
 
-## ❓ 2. Business Questions
-
-1. What are the key **user behavior patterns** across the platform?  
-2. Which merchants drive the most **revenue** and **successful transactions**?  
-3. What causes **transaction failures**, and how frequent are they?  
-4. Which merchants or categories have the **highest refund rates**?  
-5. What are the **conversion opportunities** across payment channels?  
-6. How can the platform improve **retention, efficiency, and revenue**?
+**🎯Project Outcome:**
 
 ---
-## 📂 Dataset Description
+
+## 📂 Dataset
 
 ### 📌 Data Source
 - **Source**: Internal company database (e-wallet transaction records)  
@@ -57,17 +52,17 @@ This project utilizes **three** datasets:
 - `transaction_id` is the unique key in **transactions.csv** for tracking payments.  
 - `source_id` in **payment_report.csv** contributes to refund analysis.  
 
-
-##### Table 1: Products Table (`product.csv`)
+<details>
+  <summary>Table 1: Products</summary>
 
 | Column Name  | Data Type | Description |
 |-------------|----------|-------------|
 | product_id  | INT      | Unique identifier for each product |
 | category    | TEXT     | Product category |
 | team_own    | TEXT     | Team responsible for the product |
-
-
-##### Table 2: Payment Report (`payment_report.csv`)
+</details>
+<details>
+  <summary>Table 2: Payment Report</summary>
 
 | Column Name    | Data Type | Description |
 |---------------|----------|-------------|
@@ -76,9 +71,9 @@ This project utilizes **three** datasets:
 | product_id    | INT      | Associated product ID |
 | source_id     | INT      | Source of the transaction |
 | volume        | FLOAT    | Total payment volume |
-
-
-##### Table 3: Transactions (`transactions.csv`)
+</details>
+<details>
+  <summary>Table 3: Transactions</summary>
 
 | Column Name    | Data Type | Description |
 |---------------|----------|-------------|
@@ -91,13 +86,41 @@ This project utilizes **three** datasets:
 | receiver_id    | INT      | Receiver of the transaction |
 | extra_info     | TEXT     | Additional details about the transaction |
 | timeStamp      | TIMESTAMP | Time when the transaction occurred |
+</details>
 
 ---
+### ⚒️ Data Cleaning & Preprocessing 
+- Loaded the three CSV files (`payment`, `product`, `transaction`) into Pandas DataFrames.  
+- Checked basic structure: number of rows/columns, data types, and missing values.  
+- Removed exact duplicate rows and dropped records missing **critical keys** (e.g., `product_id`, `volume`, `transType`).  
+- Converted `report_month` to datetime for time-based filtering.  
+- Merged `payment` and `product` tables into a single `payment_product` dataset using a **left join** on `product_id`.
+<details>
+  <summary><strong>Import Packages & Mount Google Drive</strong></summary>
 
-## ⚒️ Main Process
+```python
+import pandas as pd
+import numpy as np
 
-### 1️⃣ Data Cleaning & Preprocessing 
+from google.colab import drive
+drive.mount('/content/drive')
 
+path = '/content/drive/MyDrive/American Preparation/DAC K33/Python_Project 2/'
+```
+- Loads core Python libraries
+- Mounts Google Drive to access raw CSV files
+</details>
+<details>
+  <summary><strong>Load Raw Data Files</strong></summary>
+  
+```python  
+df_payment = pd.read_csv(path + 'payment_report.csv')
+df_product = pd.read_csv(path + 'product.csv')
+df_transactions = pd.read_csv(path + 'transactions.csv')
+```
+- Keeps each dataset separate for flexible cleaning & transformation
+- Ensures schema consistency before merging
+</details>
 #### Step 1. Import library
 
 ```python
