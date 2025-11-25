@@ -27,8 +27,6 @@ The goal is to:
 - **Fintech Product Manager**: need data insights about customer engagement, payment/transfer patterns, refund contributors, and product/team performance.
 - **Engineering & Operations Teams**: rely on structured insights to improve transaction workflows, detect anomalies, and enhance customer experience.
   
-**🎯Project Outcome:**
-
 ---
 
 ## 📂 Dataset
