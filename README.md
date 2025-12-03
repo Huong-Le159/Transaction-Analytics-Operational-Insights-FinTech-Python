@@ -1,10 +1,14 @@
 # 💳 Transaction Analytics & Operational Insights | FinTech | Python
 <img width="1658" height="922" alt="image" src="https://github.com/user-attachments/assets/3e31002c-e1d0-4b65-b781-c437190f4d9f" />
 
-**Author:** Huong Le  
-**Domain:** Digital Payments & E-commerce Analytics  
-**Tools Used:** Python (Pandas, NumPy, Matplotlib, Seaborn)  
+**Author:** Huong Le |**Domain:** Digital Payments & E-commerce Analytics  | **Tools Used:** Python 
 
+## Table of Contents
+1. 📌 [Background & Overview](#-background--overview)
+2. 📁 [Dataset](#-dataset-description--data-structure)
+3. 🧠 [Design Thinking Process](#-design-thinking-process)
+4. 📊 [Key Insights & Visualizations](#-key-insights--visualizations)
+5. 🔍 [Final Conclusion & Recommendation](#-final-conclusion--recommendation)
 ---
 
 ## 📌 Background & Overview
@@ -232,7 +236,7 @@ Dataset is now fully clean, validated, and ready for Analysis.
 
 ---
 
-## 🧠 4. Analysis & Insights
+## 🧠 Analysis & Insights
 
 ### 🔍 **A. Top 3 Products by Total Volume**
 [In]:
