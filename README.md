@@ -455,7 +455,7 @@ Based on the analysis of user behavior, product performance, team ownership, and
 
 ## 🛠️ 7. Tools & Skills Demonstrated
 
-- **Python:** pandas, numpy, seaborn, matplotlib
+- **Python:** pandas, numpy
 - **Data Cleaning:** missing value handling, data type correction, fixing anomalies, removing duplicates
 - **Exploratory Data Analysis (EDA):** distribution analysis, aggregation, pattern detection
 - **Product Performance Analysis:** top sellers, category contribution, team ownership validation
